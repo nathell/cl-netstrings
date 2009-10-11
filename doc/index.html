@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+"http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="pl">    
+  <head>
+    <title>cl-netstrings</title>
+    <link rel="stylesheet" type="text/css" href="style.css" />
+  </head>
+  <body>
+    <h1>cl-netstrings</h1>
+    <h2>Overview</h2>
+    <p><a href="http://cr.yp.to/proto/netstrings.txt">Netstrings</a>
+      are a simple encoding mechanism to transport arbitrary strings
+      over reliable networks.  The idea is to prefix a string by its
+      length, in bytes, and add a comma at the end.  They are used in
+      a number of networking protocols,
+      including <a href="http://python.ca/scgi/">SCGI</a>.</p>
+    <p>cl-netstrings is a tiny Common Lisp library which provides
+      reading netstrings from binary streams and writing arbitrary
+      Common Lisp strings as netstrings to binary streams.  It has
+      been written as a testing tool
+      for <a href="http://poliqarp.sf.net">Poliqarp</a> and tested
+      only on SBCL (but it is quite probable that it will run on other
+      Lisps).</p>
+    <h2>Example</h2> 
+    <p>Assuming you have a Unix with netcat available, type at the
+      terminal:</p>
+    <pre>$ echo '5:hello,' | nc -l -p 12345</pre>
+    <p>(substitute an unused port number if needed).  Then load
+      <a href="http://common-lisp.net/project/usocket/">usocket</a> in
+      the REPL and do:</p>
+    <pre>
+(let ((s (usocket:socket-stream 
+          (usocket:socket-connect 
+           "localhost" 12345 
+           :element-type '(unsigned-byte 8)))))
+  (prog1 (netstrings:read-netstring s)
+    (close s)))
+<i>--> "hello"</i></pre>
+    <h2>API documentation</h2>
+    <dl>
+      <dt>[Function]<br/><code><b>read-netstring</b>
+        (stream <i>&optional</i> (encoding :utf-8))</i></code></dt>
+      <dd>Reads a netstring
+         from <code>STREAM</code>.  <code>STREAM</code> must be a
+         binary input stream that has an element
+         type <code>(UNSIGNED-BYTE&nbsp;8)</code>.  After reading, the
+         sequence of bytes is converted to an ordinary lisp string
+         using <code>ENCODING</code> (see the documentation of
+         <code>ARNESI:OCTETS-TO-STRING</code> for a list of available
+        encodings).</dd>
+      <dt>[Function]<br/><code><b>write-netstring</b> (string
+        stream <i>&optional</i> (encoding :utf-8))</i></code></dt>
+     <dd>Writes a <code>STRING</code> to <code>STREAM</code> as a
+       netstring.  <code>STREAM</code> must be a binary output stream
+       that has an element type <code>(UNSIGNED-BYTE&nbsp;8)</code>.
+       The string is converted to a sequence of bytes using <code>ENCODING</code>
+       and then written to the stream.  See the documentation of
+       <code>ARNESI:OCTETS-TO-STRING</code> for a list of available
+       encodings.</dd>
+    </dl>
+    <h2>Getting it</h2>
+    <p>cl-netstrings resides on GitHub.  To get it, issue the following command:</p>
+    <pre>git clone git://github.com/nathell/cl-netstrings.git</pre>
+    <p>
+      Alternatively, you may use asdf-install.  If you have it up and
+      running, you can just say at the REPL:
+    </p>
+    <pre>(asdf-install:install :cl-netstrings)</pre>
+    <h2>Comments, feedback, patches</h2>
+    <p>
+      If anyone finds this library useful, I'd be happy to know it.
+      Please feel free to send email to dj at danieljanus dot pl.
+      Any patches are more than welcome.
+    </p>
+  </body>
+</html>
